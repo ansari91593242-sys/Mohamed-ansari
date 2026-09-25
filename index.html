@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>EduGenie - AI Learning Assistant</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <div class="page">
+
+        <!-- Header -->
+
+        <header class="header">
+
+            <div>
+
+                <div class="brand">
+                    EduGenie
+                </div>
+
+                <p class="tagline">
+                    Your AI-powered learning assistant
+                </p>
+
+            </div>
+
+            <div class="ai-badge">
+                ✨ Gemini AI
+            </div>
+
+        </header>
+
+
+        <!-- Main -->
+
+        <main class="main-content">
+
+            <section class="hero">
+
+                <h1>
+                    Learn smarter with AI.
+                </h1>
+
+                <p>
+                    Ask questions, understand difficult
+                    concepts, create quizzes, summarize
+                    study material, and build personalized
+                    learning paths.
+                </p>
+
+            </section>
+
+
+            <!-- Feature Selector -->
+
+            <section class="card">
+
+                <h2>
+                    Choose a learning task
+                </h2>
+
+                <div class="task-grid">
+
+                    <button
+                        class="task-button active"
+                        data-task="qa"
+                    >
+                        <span class="task-icon">💬</span>
+
+                        <span>
+                            <strong>Ask a Question</strong>
+                            <small>
+                                Get an AI-powered answer
+                            </small>
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="task-button"
+                        data-task="explain"
+                    >
+                        <span class="task-icon">💡</span>
+
+                        <span>
+                            <strong>Explain a Concept</strong>
+                            <small>
+                                Understand difficult topics
+                            </small>
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="task-button"
+                        data-task="quiz"
+                    >
+                        <span class="task-icon">📝</span>
+
+                        <span>
+                            <strong>Generate Quiz</strong>
+                            <small>
+                                Test your understanding
+                            </small>
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="task-button"
+                        data-task="summarize"
+                    >
+                        <span class="task-icon">📚</span>
+
+                        <span>
+                            <strong>Summarize</strong>
+                            <small>
+                                Create revision notes
+                            </small>
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="task-button"
+                        data-task="learn"
+                    >
+                        <span class="task-icon">🎯</span>
+
+                        <span>
+                            <strong>Learning Path</strong>
+                            <small>
+                                Build a study roadmap
+                            </small>
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- Input -->
+
+            <section class="card">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <h2 id="inputTitle">
+                            Ask your question
+                        </h2>
+
+                        <p id="inputDescription">
+                            Enter a question you want
+                            EduGenie to answer.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <textarea
+                    id="userInput"
+                    placeholder="Example: What is photosynthesis?"
+                    rows="9"
+                ></textarea>
+
+
+                <div class="action-row">
+
+                    <button
+                        id="generateButton"
+                        class="primary-button"
+                    >
+                        <span id="buttonText">
+                            Generate Answer
+                        </span>
+
+                        <span
+                            id="loadingSpinner"
+                            class="spinner hidden"
+                        ></span>
+
+                    </button>
+
+                    <button
+                        id="clearButton"
+                        class="secondary-button"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="status"
+                    class="status"
+                ></div>
+
+            </section>
+
+
+            <!-- Results -->
+
+            <section
+                id="resultSection"
+                class="card result-card hidden"
+            >
+
+                <div class="result-header">
+
+                    <h2>
+                        Result
+                    </h2>
+
+                    <button
+                        id="copyButton"
+                        class="secondary-button"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="result"
+                    class="result-content"
+                ></div>
+
+            </section>
+
+        </main>
+
+
+        <!-- Footer -->
+
+        <footer class="footer">
+
+            <p>
+                EduGenie • Google Gemini Powered
+                Learning Assistant
+            </p>
+
+        </footer>
+
+    </div>
+
+
+<script>
+
+const taskButtons =
+    document.querySelectorAll(".task-button");
+
+const userInput =
+    document.getElementById("userInput");
+
+const generateButton =
+    document.getElementById("generateButton");
+
+const clearButton =
+    document.getElementById("clearButton");
+
+const copyButton =
+    document.getElementById("copyButton");
+
+const resultSection =
+    document.getElementById("resultSection");
+
+const result =
+    document.getElementById("result");
+
+const status =
+    document.getElementById("status");
+
+const inputTitle =
+    document.getElementById("inputTitle");
+
+const inputDescription =
+    document.getElementById("inputDescription");
+
+const buttonText =
+    document.getElementById("buttonText");
+
+const loadingSpinner =
+    document.getElementById("loadingSpinner");
+
+
+let currentTask = "qa";
+
+
+const taskConfig = {
+
+    qa: {
+
+        title: "Ask your question",
+
+        description:
+            "Enter a question you want EduGenie to answer.",
+
+        placeholder:
+            "Example: What is photosynthesis?",
+
+        button:
+            "Generate Answer"
+
+    },
+
+
+    explain: {
+
+        title: "Explain a concept",
+
+        description:
+            "Enter a topic that you want explained simply.",
+
+        placeholder:
+            "Example: Explain Newton's laws of motion.",
+
+        button:
+            "Explain Concept"
+
+    },
+
+
+    quiz: {
+
+        title: "Create a quiz",
+
+        description:
+            "Paste learning material and generate exactly three MCQs.",
+
+        placeholder:
+            "Paste your study material here...",
+
+        button:
+            "Generate Quiz"
+
+    },
+
+
+    summarize: {
+
+        title: "Summarize study material",
+
+        description:
+            "Paste a passage, chapter, or study material.",
+
+        placeholder:
+            "Paste your study material here...",
+
+        button:
+            "Summarize"
+
+    },
+
+
+    learn: {
+
+        title: "Build a learning path",
+
+        description:
+            "Enter a subject you want to learn.",
+
+        placeholder:
+            "Example: Learn Python programming from beginner to advanced.",
+
+        button:
+            "Build Learning Path"
+
+    }
+
+};
+
+
+function escapeHtml(value) {
+
+    return String(value)
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;")
+
+        .replaceAll('"', "&quot;")
+
+        .replaceAll("'", "&#039;");
+
+}
+
+
+function formatText(text) {
+
+    return escapeHtml(text)
+
+        .replace(/\n\n+/g, "</p><p>")
+
+        .replace(/\n/g, "<br>");
+
+}
+
+
+function selectTask(task) {
+
+    currentTask = task;
+
+    taskButtons.forEach(button => {
+
+        button.classList.toggle(
+            "active",
+            button.dataset.task === task
+        );
+
+    });
+
+
+    const config = taskConfig[task];
+
+    inputTitle.textContent =
+        config.title;
+
+    inputDescription.textContent =
+        config.description;
+
+    userInput.placeholder =
+        config.placeholder;
+
+    buttonText.textContent =
+        config.button;
+
+
+    resultSection.classList.add("hidden");
+
+    result.innerHTML = "";
+
+    status.textContent = "";
+
+}
+
+
+taskButtons.forEach(button => {
+
+    button.addEventListener(
+        "click",
+        () => {
+            selectTask(
+                button.dataset.task
+            );
+        }
+    );
+
+});
+
+
+clearButton.addEventListener(
+    "click",
+    () => {
+
+        userInput.value = "";
+
+        result.innerHTML = "";
+
+        resultSection.classList.add(
+            "hidden"
+        );
+
+        status.textContent = "";
+
+    }
+);
+
+
+function setLoading(loading) {
+
+    generateButton.disabled =
+        loading;
+
+    clearButton.disabled =
+        loading;
+
+    loadingSpinner.classList.toggle(
+        "hidden",
+        !loading
+    );
+
+    if (loading) {
+
+        buttonText.textContent =
+            "Generating...";
+
+    } else {
+
+        buttonText.textContent =
+            taskConfig[currentTask].button;
+
+    }
+
+}
+
+
+function showError(message) {
+
+    status.textContent =
+        message;
+
+    status.className =
+        "status error";
+
+}
+
+
+function showSuccess(message) {
+
+    status.textContent =
+        message;
+
+    status.className =
+        "status success";
+
+}
+
+
+async function callAPI() {
+
+    const input =
+        userInput.value.trim();
+
+    if (!input) {
+
+        showError(
+            "Please enter some text first."
+        );
+
+        return;
+
+    }
+
+
+    setLoading(true);
+
+    status.textContent =
+        "EduGenie is thinking...";
+
+    status.className =
+        "status loading";
+
+
+    resultSection.classList.add(
+        "hidden"
+    );
+
+
+    let endpoint;
+
+    let body;
+
+
+    if (currentTask === "qa") {
+
+        endpoint = "/qa";
+
+        body = {
+            question: input
+        };
+
+    }
+
+    else if (currentTask === "explain") {
+
+        endpoint = "/explain";
+
+        body = {
+            text: input
+        };
+
+    }
+
+    else if (currentTask === "quiz") {
+
+        endpoint = "/quiz";
+
+        body = {
+            text: input
+        };
+
+    }
+
+    else if (currentTask === "summarize") {
+
+        endpoint = "/summarize";
+
+        body = {
+            text: input
+        };
+
+    }
+
+    else if (currentTask === "learn") {
+
+        endpoint =
+            "/learn/recommendations";
+
+        body = {
+            text: input
+        };
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                endpoint,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(body)
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Something went wrong."
+            );
+
+        }
+
+
+        renderResult(
+            data.result
+        );
+
+
+        resultSection.classList.remove(
+            "hidden"
+        );
+
+
+        showSuccess(
+            "Done! Your result is ready."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        showError(
+            error.message ||
+            "Unable to contact EduGenie."
+        );
+
+    }
+
+    finally {
+
+        setLoading(false);
+
+    }
+
+}
+
+
+function renderResult(data) {
+
+    if (
+        currentTask === "quiz"
+    ) {
+
+        renderQuiz(data);
+
+        return;
+
+    }
+
+
+    if (
+        currentTask === "learn"
+    ) {
+
+        renderLearningPath(data);
+
+        return;
+
+    }
+
+
+    result.innerHTML =
+        `<div class="text-result">
+            <p>${formatText(data)}</p>
+        </div>`;
+
+}
+
+
+function renderQuiz(data) {
+
+    if (
+        !data ||
+        !Array.isArray(data.questions)
+    ) {
+
+        result.innerHTML =
+            "<p>Invalid quiz response.</p>";
+
+        return;
+
+    }
+
+
+    let html =
+        '<div class="quiz-container">';
+
+
+    data.questions.forEach(
+        (question, index) => {
+
+            html += `
+                <div
+                    class="quiz-question"
+                    data-question="${index}"
+                >
+
+                    <h3>
+                        ${index + 1}.
+                        ${escapeHtml(
+                            question.question
+                        )}
+                    </h3>
+
+                    <div class="quiz-options">
+            `;
+
+
+            question.options.forEach(
+                option => {
+
+                    html += `
+                        <button
+                            class="quiz-option"
+                            data-answer="${escapeHtml(
+                                option
+                            )}"
+                        >
+                            ${escapeHtml(
+                                option
+                            )}
+                        </button>
+                    `;
+
+                }
+            );
+
+
+            html += `
+                    </div>
+
+                    <div
+                        class="quiz-feedback"
+                    ></div>
+
+                </div>
+            `;
+
+        }
+    );
+
+
+    html +=
+        "</div>";
+
+
+    result.innerHTML =
+        html;
+
+
+    const questionElements =
+        document.querySelectorAll(
+            ".quiz-question"
+        );
+
+
+    questionElements.forEach(
+        (questionElement, index) => {
+
+            const question =
+                data.questions[index];
+
+            const options =
+                questionElement.querySelectorAll(
+                    ".quiz-option"
+                );
+
+            const feedback =
+                questionElement.querySelector(
+                    ".quiz-feedback"
+                );
+
+
+            options.forEach(option => {
+
+                option.addEventListener(
+                    "click",
+                    () => {
+
+                        options.forEach(
+                            button => {
+                                button.disabled =
+                                    true;
+                            }
+                        );
+
+
+                        const selected =
+                            option.dataset.answer;
+
+
+                        if (
+                            selected ===
+                            question.correct_answer
+                        ) {
+
+                            option.classList.add(
+                                "correct"
+                            );
+
+                            feedback.innerHTML =
+                                `<strong>Correct!</strong>
+                                ${escapeHtml(
+                                    question.explanation
+                                )}`;
+
+                            feedback.className =
+                                "quiz-feedback correct-feedback";
+
+                        }
+
+                        else {
+
+                            option.classList.add(
+                                "incorrect"
+                            );
+
+
+                            options.forEach(
+                                button => {
+
+                                    if (
+                                        button.dataset.answer ===
+                                        question.correct_answer
+                                    ) {
+
+                                        button.classList.add(
+                                            "correct"
+                                        );
+
+                                    }
+
+                                }
+                            );
+
+
+                            feedback.innerHTML =
+                                `<strong>Not quite.</strong>
+                                The correct answer is
+                                <strong>${escapeHtml(
+                                    question.correct_answer
+                                )}</strong>.
+                                ${escapeHtml(
+                                    question.explanation
+                                )}`;
+
+                            feedback.className =
+                                "quiz-feedback incorrect-feedback";
+
+                        }
+
+                    }
+                );
+
+            });
+
+        }
+    );
+
+}
+
+
+function renderLearningPath(data) {
+
+    if (!data) {
+
+        result.innerHTML =
+            "<p>No learning path returned.</p>";
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <div class="learning-overview">
+
+            <div class="overview-item">
+
+                <span>Topic</span>
+
+                <strong>
+                    ${escapeHtml(
+                        data.topic
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="overview-item">
+
+                <span>Learner level</span>
+
+                <strong>
+                    ${escapeHtml(
+                        data.learner_level
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="overview-item">
+
+                <span>Goal</span>
+
+                <strong>
+                    ${escapeHtml(
+                        data.goal
+                    )}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="learning-steps">
+    `;
+
+
+    data.steps.forEach(
+        (step, index) => {
+
+            html += `
+
+                <div class="learning-step">
+
+                    <div class="step-number">
+                        ${index + 1}
+                    </div>
+
+
+                    <div class="step-content">
+
+                        <h3>
+                            ${escapeHtml(
+                                step.stage
+                            )}
+                        </h3>
+
+
+                        <p>
+                            <strong>
+                                Suggested time:
+                            </strong>
+
+                            ${escapeHtml(
+                                step.suggested_time
+                            )}
+                        </p>
+
+
+                        <h4>
+                            Topics
+                        </h4>
+
+                        <ul>
+            `;
+
+
+            step.topics.forEach(topic => {
+
+                html += `
+                    <li>
+                        ${escapeHtml(topic)}
+                    </li>
+                `;
+
+            });
+
+
+            html += `
+                        </ul>
+
+                        <h4>
+                            Practice
+                        </h4>
+
+                        <ul>
+            `;
+
+
+            step.practice.forEach(item => {
+
+                html += `
+                    <li>
+                        ${escapeHtml(item)}
+                    </li>
+                `;
+
+            });
+
+
+            html += `
+                        </ul>
+
+                        <h4>
+                            Resources
+                        </h4>
+
+                        <ul>
+            `;
+
+
+            step.resources.forEach(resource => {
+
+                html += `
+                    <li>
+                        ${escapeHtml(resource)}
+                    </li>
+                `;
+
+            });
+
+
+            html += `
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    html +=
+        "</div>";
+
+
+    result.innerHTML =
+        html;
+
+}
+
+
+generateButton.addEventListener(
+    "click",
+    callAPI
+);
+
+
+copyButton.addEventListener(
+    "click",
+    async () => {
+
+        const text =
+            result.innerText;
+
+        if (!text) {
+            return;
+        }
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                text
+            );
+
+            copyButton.textContent =
+                "Copied!";
+
+
+            setTimeout(
+                () => {
+
+                    copyButton.textContent =
+                        "Copy";
+
+                },
+                1500
+            );
+
+        }
+
+        catch {
+
+            showError(
+                "Could not copy the result."
+            );
+
+        }
+
+    }
+);
+
+
+userInput.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.ctrlKey &&
+            event.key === "Enter"
+        ) {
+
+            callAPI();
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>
